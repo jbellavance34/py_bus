@@ -1,0 +1,15 @@
+stages:
+  - test
+  - prod
+
+test:
+  stage: test
+  script:
+  - python pybus.py test
+
+staging:
+  stage: deploy
+  script:
+  - python pybus.py prod
+  only:
+  - master
