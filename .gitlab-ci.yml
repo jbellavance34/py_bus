@@ -6,7 +6,7 @@ test:
   stage: test
   script:
   - pip install --no-cache-dir -r requirements.txt
-  - pylint pubus.py
+  - pylint pybus.py
   - python pybus.py test
 
 production:
