@@ -29,29 +29,51 @@ time_to_sjsr = dir_from_mtrl_table.find_all('tr')
 start_to_sjsr = time_to_sjsr[1]
 end_to_sjsr = time_to_sjsr[-1]
 
-# filter the return and populate list MTRL
 start_to_mtrl_lst = []
 end_to_mtrl_lst = []
-for item in start_to_mtrl:
-    item = str(item)
-    if item != '\n':
-        start_to_mtrl_lst.append(re.sub("<.*?>", "", item))
-for item in end_to_mtrl:
-    item = str(item)
-    if item != '\n':
-        end_to_mtrl_lst.append(re.sub("<.*?>", "", item))
+
+# filter the return and populate list MTRL
+
+def populate_list_direction(city_start, list_start, city_end, list_end):
+    for item in city_start:
+        item = str(item)
+        if item != '\n':
+            list_start.append(re.sub("<.*?>", "", item))
+    for item in city_end:
+        item = str(item)
+        if item != '\n':
+            list_end.append(re.sub("<.*?>", "", item))
+populate_list_direction("start_to_mtrl","start_to_mtrl_lst","end_to_mtrl","end_to_mtrl_lst")
+populate_list_direction("start_to_sjsr","start_to_sjsr_lst","end_to_sjsr","end_to_sjsr_lst")
+ # for item in start_to_mtrl:
+#     item = str(item)
+#     if item != '\n':
+#         start_to_mtrl_lst.append(re.sub("<.*?>", "", item))
+# for item in end_to_mtrl:
+#     item = str(item)
+#     if item != '\n':
+#         end_to_mtrl_lst.append(re.sub("<.*?>", "", item))
+   
+# for item in start_to_mtrl:
+#     item = str(item)
+#     if item != '\n':
+#         start_to_mtrl_lst.append(re.sub("<.*?>", "", item))
+# for item in end_to_mtrl:
+#     item = str(item)
+#     if item != '\n':
+#         end_to_mtrl_lst.append(re.sub("<.*?>", "", item))
 
 # filter the return and populate list SJSR
 start_to_sjsr_lst = []
 end_to_sjsr_lst = []
-for item in start_to_sjsr:
-    item = str(item)
-    if item != '\n':
-        start_to_sjsr_lst.append(re.sub("<.*?>", "", item))
-for item in end_to_sjsr:
-    item = str(item)
-    if item != '\n':
-        end_to_sjsr_lst.append(re.sub("<.*?>", "", item))
+# for item in start_to_sjsr:
+#     item = str(item)
+#     if item != '\n':
+#         start_to_sjsr_lst.append(re.sub("<.*?>", "", item))
+# for item in end_to_sjsr:
+#     item = str(item)
+#     if item != '\n':
+#         end_to_sjsr_lst.append(re.sub("<.*?>", "", item))
 
 # todo, prendre en charge caractere unicode pour les jours ferier
 # https://www.fileformat.info/info/unicode/char/2600/index.htm
