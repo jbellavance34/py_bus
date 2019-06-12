@@ -7,7 +7,7 @@ from requests import ConnectionError
 
 # Fetch the html file
 try:
-    response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html')
+    response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=10)
     html_doc = response.read()
 except Exception as e:
     print("Exception is :" + e)
