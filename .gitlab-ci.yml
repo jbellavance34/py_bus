@@ -5,11 +5,13 @@ stages:
 test:
   stage: test
   script:
+  - pip install --no-cache-dir -r requirements.txt
   - python pybus.py test
 
 staging:
   stage: prod
   script:
+  - pip install --no-cache-dir -r requirements.txt
   - python pybus.py prod
   only:
   - master
