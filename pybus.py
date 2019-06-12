@@ -7,32 +7,32 @@ from requests import ConnectionError
 
 # Fetch the html file
 try:
-    response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=10)
-    html_doc = response.read()
-except Exception as e:
-    print("Exception is :" + e)
+    RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=10)
+    HTML_DOC = RESPONSE.read()
+except Exception as E:
+    print("Exception is :" + E)
 
 # Parse the html file
-soup = BeautifulSoup(html_doc, 'html.parser')
+SOUP = BeautifulSoup(HTML_DOC, 'html.parser')
 
-dir_list = soup.find_all('div', attrs={"id" : "div-horaires"})
-dir_to_mtrl_table = dir_list[0].find('table')
-dir_from_mtrl_table = dir_list[3].find('table')
+DIR_LIST = SOUP.find_all('div', attrs={"id" : "div-horaires"})
+DIR_TO_MTRL_TABLE = DIR_LIST[0].find('table')
+DIR_FROM_MTRL_TABLE = DIR_LIST[3].find('table')
 
-speed_to_mtrl = dir_to_mtrl_table.find_all('div', attrs={"align" : "center"})
-time_to_mtrl = dir_to_mtrl_table.find_all('tr')
-start_to_mtrl = time_to_mtrl[1]
-end_to_mtrl = time_to_mtrl[-1]
+SPEED_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('div', attrs={"align" : "center"})
+TIME_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('tr')
+START_TO_MTRL = TIME_TO_MTRL[1]
+END_TO_MTRL = TIME_TO_MTRL[-1]
 
-speed_to_sjsr = dir_from_mtrl_table.find_all('div', attrs={"align" : "center"})
-time_to_sjsr = dir_from_mtrl_table.find_all('tr')
-start_to_sjsr = time_to_sjsr[1]
-end_to_sjsr = time_to_sjsr[-1]
+SPEED_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('div', attrs={"align" : "center"})
+TIME_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('tr')
+START_TO_SJSR = TIME_TO_SJSR[1]
+END_TO_SJSR = TIME_TO_SJSR[-1]
 
-start_to_mtrl_lst = []
-end_to_mtrl_lst = []
-start_to_sjsr_lst = []
-end_to_sjsr_lst = []
+START_TO_MTRL_LST = []
+END_TO_MTRL_LST = []
+START_TO_SJSR_LST = []
+END_TO_SJSR_LST = []
 # filter the return and populate list MTRL
 
 def populate_list_direction(city_start, list_start, city_end, list_end):
@@ -44,13 +44,13 @@ def populate_list_direction(city_start, list_start, city_end, list_end):
         item = str(item)
         if item != '\n':
             list_end.append(re.sub("<.*?>", "", item))
-populate_list_direction(start_to_mtrl,start_to_mtrl_lst,end_to_mtrl,end_to_mtrl_lst)
-populate_list_direction(start_to_sjsr,start_to_sjsr_lst,end_to_sjsr,end_to_sjsr_lst)
+populate_list_direction(START_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL, END_TO_MTRL_LST)
+populate_list_direction(START_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR, END_TO_SJSR_LST)
 
 # todo, prendre en charge caractere unicode pour les jours ferier
 # https://www.fileformat.info/info/unicode/char/2600/index.htm
 
-for speed, start, end in zip(speed_to_mtrl, start_to_mtrl_lst, end_to_mtrl_lst):
+for speed, start, end in zip(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST):
     if "S" in speed.text:
         speed_long = "Super Express"
     if "E" in speed.text:
@@ -61,7 +61,7 @@ for speed, start, end in zip(speed_to_mtrl, start_to_mtrl_lst, end_to_mtrl_lst):
         speed_long = "Autoroute 30 "
     print("Autobus destination MTRL - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
 
-for speed, start, end in zip(speed_to_sjsr, start_to_sjsr_lst, end_to_sjsr_lst):
+for speed, start, end in zip(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST):
     if "S" in speed.text:
         speed_long = "Super Express"
     if "E" in speed.text:
