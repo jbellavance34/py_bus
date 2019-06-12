@@ -31,7 +31,8 @@ end_to_sjsr = time_to_sjsr[-1]
 
 start_to_mtrl_lst = []
 end_to_mtrl_lst = []
-
+start_to_sjsr_lst = []
+end_to_sjsr_lst = []
 # filter the return and populate list MTRL
 
 def populate_list_direction(city_start, list_start, city_end, list_end):
@@ -64,8 +65,7 @@ populate_list_direction(start_to_sjsr,start_to_sjsr_lst,end_to_sjsr,end_to_sjsr_
 #         end_to_mtrl_lst.append(re.sub("<.*?>", "", item))
 
 # filter the return and populate list SJSR
-start_to_sjsr_lst = []
-end_to_sjsr_lst = []
+
 # for item in start_to_sjsr:
 #     item = str(item)
 #     if item != '\n':
