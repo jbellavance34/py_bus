@@ -9,8 +9,8 @@ from requests import ConnectionError
 try:
     response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html')
     html_doc = response.read()
-except(Exception), e:
-    print "Exception is :", e
+except Exception as e:
+    print("Exception is :" + e)
 
 # Parse the html file
 soup = BeautifulSoup(html_doc, 'html.parser')
