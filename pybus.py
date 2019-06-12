@@ -9,7 +9,7 @@ from requests import ConnectionError
 try:
     response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html')
     html_doc = response.read()
-except(ConnectionError, Exception), e:
+except(Exception), e:
     print "Exception is :", e
 
 # Parse the html file
