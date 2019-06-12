@@ -8,7 +8,7 @@ test:
   - python pybus.py test
 
 staging:
-  stage: deploy
+  stage: prod
   script:
   - python pybus.py prod
   only:
