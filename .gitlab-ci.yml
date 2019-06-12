@@ -12,7 +12,7 @@ test:
 production:
   stage: prod
   script:
-  - pip install --no-cache-dir -r requirements.txt
-  - python pybus.py prod
+  - echo "TODO"
+  - echo "Deploying on prod.."
   only:
   - master
