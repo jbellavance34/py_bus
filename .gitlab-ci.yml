@@ -5,10 +5,12 @@ stages:
 test:
   stage: test
   script:
+  - apt-get update -qy
+  - apt-get install -y python-dev python-pip
   - pip install --no-cache-dir -r requirements.txt
   - python pybus.py test
 
-staging:
+production:
   stage: prod
   script:
   - pip install --no-cache-dir -r requirements.txt
