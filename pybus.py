@@ -1,11 +1,16 @@
 #!/usr/bin/python
 import urllib.request
 import re
+import requests
 from bs4 import BeautifulSoup
+from requests import ConnectionError
 
 # Fetch the html file
-response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html')
-html_doc = response.read()
+try:
+    response = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html')
+    html_doc = response.read()
+except(ConnectionError, Exception), e:
+    print "Exception is :", e
 
 # Parse the html file
 soup = BeautifulSoup(html_doc, 'html.parser')
@@ -13,7 +18,6 @@ soup = BeautifulSoup(html_doc, 'html.parser')
 dir_list = soup.find_all('div', attrs={"id" : "div-horaires"})
 dir_to_mtrl_table = dir_list[0].find('table')
 dir_from_mtrl_table = dir_list[3].find('table')
-
 
 speed_to_mtrl = dir_to_mtrl_table.find_all('div', attrs={"align" : "center"})
 time_to_mtrl = dir_to_mtrl_table.find_all('tr')
