@@ -8,6 +8,8 @@ test:
   - pip install --no-cache-dir -r requirements.txt
   - pylint --rcfile=.pylintrc pybus.py 
   - python pybus.py test
+  except:
+  - master
 
 production:
   stage: prod
