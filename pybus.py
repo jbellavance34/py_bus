@@ -20,14 +20,12 @@ DIR_TO_MTRL_TABLE = DIR_LIST[0].find('table')
 DIR_FROM_MTRL_TABLE = DIR_LIST[3].find('table')
 
 SPEED_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('div', attrs={"align" : "center"})
-TIME_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('tr')
-START_TO_MTRL = TIME_TO_MTRL[1]
-END_TO_MTRL = TIME_TO_MTRL[-1]
+START_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('tr')[1]
+END_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('tr')[-1]
 
 SPEED_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('div', attrs={"align" : "center"})
-TIME_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('tr')
-START_TO_SJSR = TIME_TO_SJSR[1]
-END_TO_SJSR = TIME_TO_SJSR[-1]
+START_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('tr')[1]
+END_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('tr')[-1]
 
 START_TO_MTRL_LST = []
 END_TO_MTRL_LST = []
