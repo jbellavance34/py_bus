@@ -43,8 +43,8 @@ def populate_list_direction(city_start, list_start, city_end, list_end):
         item = str(item)
         if item != '\n':
             list_end.append(re.sub("<.*?>", "", item))
-populate_list_direction("start_to_mtrl","start_to_mtrl_lst","end_to_mtrl","end_to_mtrl_lst")
-populate_list_direction("start_to_sjsr","start_to_sjsr_lst","end_to_sjsr","end_to_sjsr_lst")
+populate_list_direction(start_to_mtrl,start_to_mtrl_lst,end_to_mtrl,end_to_mtrl_lst)
+populate_list_direction(start_to_sjsr,start_to_sjsr_lst,end_to_sjsr,end_to_sjsr_lst)
  # for item in start_to_mtrl:
 #     item = str(item)
 #     if item != '\n':
