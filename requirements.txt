@@ -2,3 +2,5 @@ beautifulsoup4
 urllib3
 requests
 pylint
+flask
+flask_api

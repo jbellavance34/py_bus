@@ -6,8 +6,8 @@ test:
   stage: test
   script:
   - pip install --no-cache-dir -r requirements.txt
-  - pylint --rcfile=.pylintrc pybus.py 
-  - python pybus.py test
+  - pylint --rcfile=.pylintrc pybus.py pybus_test.py
+  - python pybus_test.py
   except:
   - master
 
