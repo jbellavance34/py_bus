@@ -18,7 +18,7 @@ production:
   script:
   - echo "Deploying on prod"
   - export SSHPASS=$PRODUCTION_PASSWORD
-  - sshpass -e ssh $PRODUCTION_USERNAME@freebsd cp /usr/local/www/apache24/api/py_bus.py /usr/local/www/apache24/api/py_bus.py.{date +'%Y-%m-%d'}
-  - sshpass -e scp pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/py_bus.py
+  - sshpass -vvv -e ssh $PRODUCTION_USERNAME@freebsd cp /usr/local/www/apache24/api/py_bus.py /usr/local/www/apache24/api/py_bus.py.{date +'%Y-%m-%d'}
+  - sshpass -vvv -e scp pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/py_bus.py
   only:
   - master
