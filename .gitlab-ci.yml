@@ -18,6 +18,6 @@ production:
   script:
   - echo "Deploying on prod"
   - export SSHPASS=$PRODUCTION_PASSWORD
-  - script -qc"shpass -e scp -vvv pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/pybus.py"
+  - script -qc"sshpass -e scp -vvv pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/pybus.py"
   only:
   - master
