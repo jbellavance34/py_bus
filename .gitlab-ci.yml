@@ -18,7 +18,7 @@ production:
   script:
   - echo "Deploying on prod"
   - export SSHPASS=$PRODUCTION_PASSWORD
-  - script -qc"sshpass -vvv -e ssh -oStrictHostKeyChecking=no root@freebsd 'cp /usr/local/www/apache24/api/py_bus.py /usr/local/www/apache24/api/py_bus.py.{date +'%Y-%m-%d'}'"
-  - script -qc"sshpass -vvv -e scp -oStrictHostKeyChecking=no pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/py_bus.py"
+  - script -qc"sshpass -vvv -e ssh -oStrictHostKeyChecking=no root@freebsd 'cp /usr/local/www/apache24/api/pybus.py /usr/local/www/apache24/api/pybus.py.{date +'%Y-%m-%d'}'"
+  - script -qc"sshpass -vvv -e scp -oStrictHostKeyChecking=no pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/pybus.py"
   only:
   - master
