@@ -15,7 +15,7 @@ pip install --no-cache-dir -r requirements.txt
 TODO 
 
 ```bash
-python pybus.py --test
+python pybus_test.py
 ```
 
 ## Authors
