@@ -1,6 +1,8 @@
 stages:
   - test
   - prod
+before_script:
+ - apt-get update -qq && apt-get install -y -qq sshpass
 
 test:
   stage: test
