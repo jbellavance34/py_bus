@@ -1,6 +1,8 @@
 stages:
   - test
   - prod
+before_script:
+ - apt-get update -qq && apt-get install -y -qq sshpass
 
 test:
   stage: test
@@ -14,6 +16,7 @@ test:
 production:
   stage: prod
   script:
+  - 
   - echo "Deploying on prod"
   - export SSHPASS=$PRODUCTION_PASSWORD
   - sshpass -e ssh $PRODUCTION_USERNAME@freebsd cp /usr/local/www/apache24/api/py_bus.py /usr/local/www/apache24/api/py_bus.py.{date +'%Y-%m-%d'}
