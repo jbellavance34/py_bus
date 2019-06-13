@@ -12,3 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### API, tests
 - Converted into flask API
 - Testing suite added
+## [0.0.3] - 2019-06-13
+### deployement automation
+- Production automation added
