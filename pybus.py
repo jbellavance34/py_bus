@@ -22,7 +22,7 @@ def parse_bus():
             return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
         try:
-            RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=10)
+            RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
             HTML_DOC = RESPONSE.read()
         except Exception as E:
             print("Exception is :" + E)
