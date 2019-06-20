@@ -18,7 +18,7 @@ def parse_bus():
         else:
             direction = ('all')
         destination = ['sjsr', 'mtrl', 'all']
-        if not direction.lower() in destination:
+        if direction.lower() not in destination:
             return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
         try:
