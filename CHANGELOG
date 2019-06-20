@@ -15,3 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.3] - 2019-06-13
 ### deployement automation
 - Production automation added
+## [0.0.4] - 2019-06-20
+### specific destination method added
+- The api can now return only a specific location (/?dest=)
+- Improvement of switch speed validation
+- timeout of bus site augmented to 30 sec
