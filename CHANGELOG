@@ -19,3 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### specific destination method added
 - The api can now return only a specific location (/?dest=)
 - Improvement of switch speed validation
+- timeout of bus site augmented to 30 sec
