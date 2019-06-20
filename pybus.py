@@ -13,8 +13,16 @@ app = FlaskAPI(__name__)
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
+        if request.args.get("dest"):
+            direction = request.args.get("dest", "")
+        else:
+            direction = ('all')
+        destination = ['sjsr', 'mtrl', 'all']
+        if direction.lower() not in destination:
+            return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
+            return return_message, status.HTTP_400_BAD_REQUEST
         try:
-            RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=10)
+            RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
             HTML_DOC = RESPONSE.read()
         except Exception as E:
             print("Exception is :" + E)
@@ -55,27 +63,28 @@ def parse_bus():
         # todo, prendre en charge caractere unicode pour les jours ferier
         # https://www.fileformat.info/info/unicode/char/2600/index.htm
         complete_return_value = []
-        for speed, start, end in zip(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST):
-            if "S" in speed.text:
-                speed_long = "Super Express"
-            if "E" in speed.text:
-                speed_long = "Express      "
-            if "L" in speed.text:
-                speed_long = "Locale       "
-            if "A" in speed.text:
-                speed_long = "Autoroute 30 "
-            complete_return_value.append("Autobus destination MTRL - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
-
-        for speed, start, end in zip(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST):
-            if "S" in speed.text:
-                speed_long = "Super Express"
-            if "E" in speed.text:
-                speed_long = "Express      "
-            if "L" in speed.text:
-                speed_long = "Locale       "
-            if "A" in speed.text:
-                speed_long = "Autoroute 30 "
-            complete_return_value.append("Autobus destination SJSR - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
+        def listofspeeds(argument):
+            switcher = {
+                "S": "Super Express  ",
+                "S ☀": "Super Express ☀",
+                "E": "Express        ",
+                "E ☀": "Express ☀      ",
+                "L": "Locale         ",
+                "L ☀": "Locale ☀      ",
+                "A": "Autoroute 30   ",
+                "A ☀": "Autoroute 30 ☀ ",
+            }
+            return switcher.get(argument, "Wrong speed    ")
+        if destination[1].lower() in direction or direction == "all":
+            for speed, start, end in zip(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST):
+                argument = speed.text
+                speed_long = listofspeeds(argument)
+                complete_return_value.append("Autobus destination MTRL - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
+        if destination[0].lower() in direction or direction == "all":
+            for speed, start, end in zip(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST):
+                argument = speed.text
+                speed_long = listofspeeds(argument)
+                complete_return_value.append("Autobus destination SJSR - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
 
         return complete_return_value, status.HTTP_200_OK
 
