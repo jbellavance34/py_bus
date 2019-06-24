@@ -20,3 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The api can now return only a specific location (/?dest=)
 - Improvement of switch speed validation
 - timeout of bus site augmented to 30 sec
+## [0.0.5] - 2019-06-24
+### time validation added
+- The api now retrun only 10 futures busses from current time GMT

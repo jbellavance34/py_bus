@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import urllib.request
 import re
+import time
 import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError
@@ -13,6 +14,9 @@ app = FlaskAPI(__name__)
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
+        localtime = time.asctime(time.localtime(time.time()))
+        date_day_word, date_month, date_day_number, date_time, date_year = localtime.split(' ')
+        date_time_hours, date_time_minutes, date_time_seconds = date_time.split(':')
         if request.args.get("dest"):
             direction = request.args.get("dest", "")
         else:
@@ -22,6 +26,7 @@ def parse_bus():
             return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
         try:
+            # todo, implement caching or fetch de file only if changed (md5)
             RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
             HTML_DOC = RESPONSE.read()
         except Exception as E:
@@ -75,16 +80,20 @@ def parse_bus():
                 "A ☀": "Autoroute 30 ☀ ",
             }
             return switcher.get(argument, "Wrong speed    ")
+        # todo, combine two if into function
         if destination[1].lower() in direction or direction == "all":
             for speed, start, end in zip(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST):
-                argument = speed.text
-                speed_long = listofspeeds(argument)
-                complete_return_value.append("Autobus destination MTRL - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
+                loop_hours, loop_minutes = start.split(':')
+                if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
+                    if (sum('MTRL' in s for s in complete_return_value)) <= 10:
+                        complete_return_value.append("Autobus destination MTRL : " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
+
         if destination[0].lower() in direction or direction == "all":
             for speed, start, end in zip(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST):
-                argument = speed.text
-                speed_long = listofspeeds(argument)
-                complete_return_value.append("Autobus destination SJSR - Vitesse: " + speed_long + " Depart:" + start + " Arriver:" + end)
+                loop_hours, loop_minutes = start.split(':')
+                if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
+                    if (sum('SJSR' in s for s in complete_return_value)) <= 10:
+                        complete_return_value.append("Autobus destination SJSR - Vitesse: " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
 
         return complete_return_value, status.HTTP_200_OK
 
