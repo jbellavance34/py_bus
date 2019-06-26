@@ -17,6 +17,10 @@ def parse_bus():
         localtime = time.asctime(time.localtime(time.time()))
         date_day_word, date_month, date_day_number, date_time, date_year = localtime.split(' ')
         date_time_hours, date_time_minutes, date_time_seconds = date_time.split(':')
+        if request.args.get("max"):
+            direction_max = request.args.get("max", "")
+        else:
+            direction_max = 10
         if request.args.get("dest"):
             direction = request.args.get("dest", "")
         else:
@@ -26,13 +30,14 @@ def parse_bus():
             return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
         try:
+            ######
             # todo, implement caching or fetch de file only if changed (md5)
+            ######
             RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
             HTML_DOC = RESPONSE.read()
         except Exception as E:
             print("Exception is :" + E)
 
-        # Parse the html file
         SOUP = BeautifulSoup(HTML_DOC, 'html.parser')
 
         DIR_LIST = SOUP.find_all('div', attrs={"id" : "div-horaires"})
@@ -51,7 +56,6 @@ def parse_bus():
         END_TO_MTRL_LST = []
         START_TO_SJSR_LST = []
         END_TO_SJSR_LST = []
-        # filter the return and populate list MTRL
 
         def populate_list_direction(city_start, list_start, city_end, list_end):
             for item in city_start:
@@ -64,9 +68,10 @@ def parse_bus():
                     list_end.append(re.sub("<.*?>", "", item))
         populate_list_direction(START_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL, END_TO_MTRL_LST)
         populate_list_direction(START_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR, END_TO_SJSR_LST)
-
+        ######
         # todo, prendre en charge caractere unicode pour les jours ferier
         # https://www.fileformat.info/info/unicode/char/2600/index.htm
+        #####
         complete_return_value = []
         def listofspeeds(argument):
             switcher = {
@@ -80,20 +85,20 @@ def parse_bus():
                 "A ☀": "Autoroute 30 ☀ ",
             }
             return switcher.get(argument, "Wrong speed    ")
-        # todo, combine two if into function
-        if destination[1].lower() in direction or direction == "all":
-            for speed, start, end in zip(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST):
-                loop_hours, loop_minutes = start.split(':')
-                if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
-                    if (sum('MTRL' in s for s in complete_return_value)) <= 10:
-                        complete_return_value.append("Autobus destination MTRL : " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
+        def populate_complete(speed_to, start_lst, end_lst, dest, max_bus):
+            if dest.lower() == 'mtrl':
+                int_dict = 1
+            if dest.lower() == 'sjsr':
+                int_dict = 0
+            if destination[int_dict].lower() in direction or direction == "all":
+                for speed, start, end in zip(speed_to, start_lst, end_lst):
+                    loop_hours, loop_minutes = start.split(':')
+                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)) or direction == 'all':
+                        if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) -1):
+                            complete_return_value.append("Autobus destination " + dest + " : " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
 
-        if destination[0].lower() in direction or direction == "all":
-            for speed, start, end in zip(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST):
-                loop_hours, loop_minutes = start.split(':')
-                if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
-                    if (sum('SJSR' in s for s in complete_return_value)) <= 10:
-                        complete_return_value.append("Autobus destination SJSR - Vitesse: " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
+        populate_complete(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST, 'MTRL', direction_max)
+        populate_complete(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST, 'SJSR', direction_max)
 
         return complete_return_value, status.HTTP_200_OK
 
