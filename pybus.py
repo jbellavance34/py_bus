@@ -12,16 +12,17 @@ from flask_api import FlaskAPI, status, exceptions
 app = FlaskAPI(__name__)
 @app.before_first_request
 def load_huge_file():
-    try:
-        ######
-        # todo, implement caching or fetch de file only if changed (md5)
-        ######
-        RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
-        HTML_DOC_LOAD = RESPONSE.read()
-    except Exception as E:
-        print("Exception is :" + E)
-    global HTML_DOC
-    HTML_DOC = HTML_DOC_LOAD
+    for _ in range(10):
+        try:
+            RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
+            HTML_DOC_LOAD = RESPONSE.read()
+            global HTML_DOC
+            HTML_DOC = HTML_DOC_LOAD
+            continue
+        except Exception as E:
+            print("Exception is :" + str(E))
+            continue
+        break
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
@@ -40,14 +41,6 @@ def parse_bus():
         if direction.lower() not in destination:
             return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
-        # try:
-        #     ######
-        #     # todo, implement caching or fetch de file only if changed (md5)
-        #     ######
-        #     RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
-        #     HTML_DOC = RESPONSE.read()
-        # except Exception as E:
-        #     print("Exception is :" + E)
 
         SOUP = BeautifulSoup(HTML_DOC, 'html.parser')
 
