@@ -23,3 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.5] - 2019-06-24
 ### time validation added
 - The api now retrun only 10 futures busses from current time GMT
+### [0.0.6] - 2019-06-26
+### max feature added
+- The api now return x futures busses from ?max=x variable
+- function populate_complete create to remove repeated code
