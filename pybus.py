@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import urllib.request
 import re
-import time
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 from requests import ConnectionError
 from flask import request, url_for
@@ -26,9 +26,13 @@ def load_huge_file():
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
-        localtime = time.asctime(time.localtime(time.time()))
-        date_day_word, date_month, date_day_number, date_time, date_year = localtime.split(' ')
-        date_time_hours, date_time_minutes, date_time_seconds = date_time.split(':')
+        localtime = datetime.now()
+        date_year = localtime.strftime("%Y")
+        date_month = localtime.strftime("%m")
+        date_day_number = localtime.strftime("%d")
+        date_time_hours = localtime.strftime("%H")
+        date_time_minutes = localtime.strftime("%M")
+        date_time_seconds = localtime.strftime("%S")
         if request.args.get("max"):
             direction_max = request.args.get("max", "")
         else:
