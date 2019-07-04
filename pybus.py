@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import urllib.request
 import re
-import requests
 from datetime import datetime
+import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError
 from flask import request, url_for
