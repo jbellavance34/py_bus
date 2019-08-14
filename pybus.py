@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import urllib.request
 import re
+import sys
 from datetime import datetime
 from bs4 import BeautifulSoup
 from flask import request, url_for
@@ -11,7 +12,7 @@ app = FlaskAPI(__name__)
 
 @app.before_first_request
 def load_huge_file():
-    for _ in range(10):
+    for tries in range(9):
         try:
             url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/'
                    'transport-en-commun/Documents/horaires/96.html')
@@ -19,12 +20,17 @@ def load_huge_file():
             html_doc_load = response.read()
             global html_doc
             html_doc = html_doc_load
-            continue
         except Exception as E:
-            print("Exception is :" + str(E))
+            print("Try " + str(tries) + "/10 failed for " + url + " exception is : " + str(E))
             continue
-        break
-
+    else:
+        print("Can't fetch website data, exiting program")
+        ######
+        # todo, add routine when page doesn't get fetch.
+        # Idea: Copy variable to file, and load file instead of
+        #       a live version.
+        #####
+    return
 
 @app.route("/", methods=['GET'])
 def parse_bus():
