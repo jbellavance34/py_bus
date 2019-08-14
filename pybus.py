@@ -15,7 +15,6 @@ def load_huge_file():
         try:
             url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/'
                    'transport-en-commun/Documents/horaires/96.html')
-            print(url)
             response = urllib.request.urlopen(url, timeout=30)
             html_doc_load = response.read()
             global html_doc
