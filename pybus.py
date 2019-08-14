@@ -1,10 +1,10 @@
 #!/usr/bin/python
-import urllib.request
 import re
-import sys
+import urllib.request
 from datetime import datetime
+
 from bs4 import BeautifulSoup
-from flask import request, url_for
+from flask import request
 from flask_api import FlaskAPI, status
 
 app = FlaskAPI(__name__)
@@ -13,9 +13,9 @@ app = FlaskAPI(__name__)
 @app.before_first_request
 def load_huge_file():
     for tries in range(9):
+        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/2'
+               'transport-en-commun/Documents/horaires/96.html')
         try:
-            url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/'
-                   'transport-en-commun/Documents/horaires/96.html')
             response = urllib.request.urlopen(url, timeout=30)
             html_doc_load = response.read()
             global html_doc
@@ -31,6 +31,7 @@ def load_huge_file():
         #       a live version.
         #####
     return
+
 
 @app.route("/", methods=['GET'])
 def parse_bus():
@@ -48,20 +49,21 @@ def parse_bus():
             direction = 'all'
         destination = ['sjsr', 'mtrl', 'all']
         if direction.lower() not in destination:
-            return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
+            return_message = "Variable dest=" + direction.lower() + " invalid. Must be dest=" + destination[0].lower() \
+                             + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
 
         soup = BeautifulSoup(html_doc, 'html.parser')
 
-        dir_list = soup.find_all('div', attrs={"id" : "div-horaires"})
+        dir_list = soup.find_all('div', attrs={"id": "div-horaires"})
         dir_to_mtrl_table = dir_list[0].find('table')
         dir_from_mtrl_table = dir_list[3].find('table')
 
-        speed_to_mtrl = dir_to_mtrl_table.find_all('div', attrs={"align" : "center"})
+        speed_to_mtrl = dir_to_mtrl_table.find_all('div', attrs={"align": "center"})
         start_to_mtrl = dir_to_mtrl_table.find_all('tr')[1]
         end_to_mtrl = dir_to_mtrl_table.find_all('tr')[-1]
 
-        speed_to_sjsr = dir_from_mtrl_table.find_all('div', attrs={"align" : "center"})
+        speed_to_sjsr = dir_from_mtrl_table.find_all('div', attrs={"align": "center"})
         start_to_sjsr = dir_from_mtrl_table.find_all('tr')[1]
         end_to_sjsr = dir_from_mtrl_table.find_all('tr')[-1]
 
@@ -108,9 +110,12 @@ def parse_bus():
             if destination[int_dict].lower() in direction or direction == "all":
                 for speed, start, end in zip(speed_to, start_lst, end_lst):
                     loop_hours, loop_minutes = start.split(':')
-                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)) or direction == 'all':
-                        if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) -1):
-                            complete_return_value.append("Autobus destination " + dest + " : " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
+                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes))\
+                            or direction == 'all':
+                        if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) - 1):
+                            complete_return_value.append("Autobus destination " + dest + " : "
+                                                         + listofspeeds(speed.text) + " Depart:"
+                                                         + start + " Arriver:" + end)
 
         populate_complete(speed_to_mtrl, start_to_mtrl_lst, end_to_mtrl_lst, 'MTRL', direction_max)
         populate_complete(speed_to_sjsr, start_to_sjsr_lst, end_to_sjsr_lst, 'SJSR', direction_max)
