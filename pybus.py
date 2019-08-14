@@ -2,37 +2,37 @@
 import urllib.request
 import re
 from datetime import datetime
-import requests
 from bs4 import BeautifulSoup
-from requests import ConnectionError
 from flask import request, url_for
-from flask import jsonify
-from flask_api import FlaskAPI, status, exceptions
+from flask_api import FlaskAPI, status
 
 app = FlaskAPI(__name__)
+
+
 @app.before_first_request
 def load_huge_file():
     for _ in range(10):
         try:
-            RESPONSE = urllib.request.urlopen('http://www.ville.saint-jean-sur-richelieu.qc.ca/transport-en-commun/Documents/horaires/96.html', timeout=30)
-            HTML_DOC_LOAD = RESPONSE.read()
-            global HTML_DOC
-            HTML_DOC = HTML_DOC_LOAD
+            url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/'
+                   'transport-en-commun/Documents/horaires/96.html')
+            print(url)
+            response = urllib.request.urlopen(url, timeout=30)
+            html_doc_load = response.read()
+            global html_doc
+            html_doc = html_doc_load
             continue
         except Exception as E:
             print("Exception is :" + str(E))
             continue
         break
+
+
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
         localtime = datetime.now()
-        date_year = localtime.strftime("%Y")
-        date_month = localtime.strftime("%m")
-        date_day_number = localtime.strftime("%d")
         date_time_hours = localtime.strftime("%H")
         date_time_minutes = localtime.strftime("%M")
-        date_time_seconds = localtime.strftime("%S")
         if request.args.get("max"):
             direction_max = request.args.get("max", "")
         else:
@@ -40,30 +40,30 @@ def parse_bus():
         if request.args.get("dest"):
             direction = request.args.get("dest", "")
         else:
-            direction = ('all')
+            direction = 'all'
         destination = ['sjsr', 'mtrl', 'all']
         if direction.lower() not in destination:
             return_message = "Variable dest=" + direction.lower() +" invalid. Must be dest=" + destination[0].lower() + " or dest=" + destination[1].lower()
             return return_message, status.HTTP_400_BAD_REQUEST
 
-        SOUP = BeautifulSoup(HTML_DOC, 'html.parser')
+        soup = BeautifulSoup(html_doc, 'html.parser')
 
-        DIR_LIST = SOUP.find_all('div', attrs={"id" : "div-horaires"})
-        DIR_TO_MTRL_TABLE = DIR_LIST[0].find('table')
-        DIR_FROM_MTRL_TABLE = DIR_LIST[3].find('table')
+        dir_list = soup.find_all('div', attrs={"id" : "div-horaires"})
+        dir_to_mtrl_table = dir_list[0].find('table')
+        dir_from_mtrl_table = dir_list[3].find('table')
 
-        SPEED_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('div', attrs={"align" : "center"})
-        START_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('tr')[1]
-        END_TO_MTRL = DIR_TO_MTRL_TABLE.find_all('tr')[-1]
+        speed_to_mtrl = dir_to_mtrl_table.find_all('div', attrs={"align" : "center"})
+        start_to_mtrl = dir_to_mtrl_table.find_all('tr')[1]
+        end_to_mtrl = dir_to_mtrl_table.find_all('tr')[-1]
 
-        SPEED_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('div', attrs={"align" : "center"})
-        START_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('tr')[1]
-        END_TO_SJSR = DIR_FROM_MTRL_TABLE.find_all('tr')[-1]
+        speed_to_sjsr = dir_from_mtrl_table.find_all('div', attrs={"align" : "center"})
+        start_to_sjsr = dir_from_mtrl_table.find_all('tr')[1]
+        end_to_sjsr = dir_from_mtrl_table.find_all('tr')[-1]
 
-        START_TO_MTRL_LST = []
-        END_TO_MTRL_LST = []
-        START_TO_SJSR_LST = []
-        END_TO_SJSR_LST = []
+        start_to_mtrl_lst = []
+        end_to_mtrl_lst = []
+        start_to_sjsr_lst = []
+        end_to_sjsr_lst = []
 
         def populate_list_direction(city_start, list_start, city_end, list_end):
             for item in city_start:
@@ -74,13 +74,14 @@ def parse_bus():
                 item = str(item)
                 if item != '\n':
                     list_end.append(re.sub("<.*?>", "", item))
-        populate_list_direction(START_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL, END_TO_MTRL_LST)
-        populate_list_direction(START_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR, END_TO_SJSR_LST)
+        populate_list_direction(start_to_mtrl, start_to_mtrl_lst, end_to_mtrl, end_to_mtrl_lst)
+        populate_list_direction(start_to_sjsr, start_to_sjsr_lst, end_to_sjsr, end_to_sjsr_lst)
         ######
         # todo, prendre en charge caractere unicode pour les jours ferier
         # https://www.fileformat.info/info/unicode/char/2600/index.htm
         #####
         complete_return_value = []
+
         def listofspeeds(argument):
             switcher = {
                 "S": "Super Express  ",
@@ -93,6 +94,7 @@ def parse_bus():
                 "A ☀": "Autoroute 30 ☀ ",
             }
             return switcher.get(argument, "Wrong speed    ")
+
         def populate_complete(speed_to, start_lst, end_lst, dest, max_bus):
             if dest.lower() == 'mtrl':
                 int_dict = 1
@@ -105,10 +107,11 @@ def parse_bus():
                         if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) -1):
                             complete_return_value.append("Autobus destination " + dest + " : " + listofspeeds(speed.text) + " Depart:" + start + " Arriver:" + end)
 
-        populate_complete(SPEED_TO_MTRL, START_TO_MTRL_LST, END_TO_MTRL_LST, 'MTRL', direction_max)
-        populate_complete(SPEED_TO_SJSR, START_TO_SJSR_LST, END_TO_SJSR_LST, 'SJSR', direction_max)
+        populate_complete(speed_to_mtrl, start_to_mtrl_lst, end_to_mtrl_lst, 'MTRL', direction_max)
+        populate_complete(speed_to_sjsr, start_to_sjsr_lst, end_to_sjsr_lst, 'SJSR', direction_max)
 
         return complete_return_value, status.HTTP_200_OK
+
 
 if __name__ == "__main__":
     app.run(debug=True)
