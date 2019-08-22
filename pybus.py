@@ -23,6 +23,7 @@ def load_huge_file():
         except Exception as E:
             print("Try " + str(tries) + "/10 failed for " + url + " exception is : " + str(E))
             continue
+        break
     else:
         print("Can't fetch website data, exiting program")
         ######
