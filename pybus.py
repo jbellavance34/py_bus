@@ -30,7 +30,7 @@ def load_huge_file():
         # Idea: Copy variable to file, and load file instead of
         #       a live version.
         #####
-    return
+        #####
 
 
 @app.route("/", methods=['GET'])
