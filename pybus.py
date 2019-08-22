@@ -13,7 +13,7 @@ app = FlaskAPI(__name__)
 @app.before_first_request
 def load_huge_file():
     for tries in range(1, 11):
-        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/2'
+        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/'
                'transport-en-commun/Documents/horaires/96.html')
         try:
             response = urllib.request.urlopen(url, timeout=30)
