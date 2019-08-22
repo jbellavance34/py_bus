@@ -5,9 +5,9 @@ The pybus.py script parse the St-Jean-Sur-Le-Richelieu autobus timeline.
 ## api call
 
     * /          - return all bus trajectories ( sjsr and mtrl) and max 10
-    * /dest=sjsr - return only sjsr bus trajectories (combines with max=x)
-    * /dest=mtrl - return only mtrl bus trajectories (combines with max=x)
-    * /max=x     - return only x bus trajectories (combines with dest=sjsr|dest=mtrl)
+    * ?dest=sjsr - return only sjsr bus trajectories (combines with max=x)
+    * ?dest=mtrl - return only mtrl bus trajectories (combines with max=x)
+    * ?max=x     - return only x bus trajectories (combines with ?dest=value)
 
 ## Requirements
 
@@ -30,4 +30,5 @@ python pybus_test.py -v
 
 ## Acknowledgments
 
-* http://python.org
+* http://python.org/
+* https://www.flaskapi.org/
