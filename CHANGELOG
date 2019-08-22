@@ -36,4 +36,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug fix time, using datetime
 ### [0.0.9] - 2019-08-21
 ### minor improvements
-- minor fixes, syntax review
+- minor fixes
+- syntax review
