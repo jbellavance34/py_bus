@@ -4,41 +4,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.1] - 2019-06-12
-### First version
-- Fetches all the data from the city website
-
-## [0.0.2] - 2019-06-13
-### API, tests
-- Converted into flask API
-- Testing suite added
-## [0.0.3] - 2019-06-13
-### deployment automation
-- Production automation added
+### [0.1.0] - 2019-10-26
+### Timezone fix + serverless integration
+- Timezone fixed to America/Montreal
+- added serverless integration for AWS deployments
+### [0.0.9] - 2019-08-21
+### minor improvements
+- minor fixes
+- syntax review
+### [0.0.8] - 2019-07-03
+### bug fix time
+- Bug fix time, using datetime
+### [0.0.7] - 2019-06-26
+### cache feature added
+- The api now caches the city site response
+- The api now tries 10 times to get city website data
+### [0.0.6] - 2019-06-26
+### max feature added
+- The api now return x futures buses from ?max=x variable
+- function populate_complete create to remove repeated code
+## [0.0.5] - 2019-06-24
+### time validation added
+- The api now return only 10 futures buses from current time GMT
 ## [0.0.4] - 2019-06-20
 ### specific destination method added
 - The api can now return only a specific location (/?dest=)
 - Improvement of switch speed validation
 - timeout of bus site augmented to 30 sec
-## [0.0.5] - 2019-06-24
-### time validation added
-- The api now retrun only 10 futures busses from current time GMT
-### [0.0.6] - 2019-06-26
-### max feature added
-- The api now return x futures busses from ?max=x variable
-- function populate_complete create to remove repeated code
-### [0.0.7] - 2019-06-26
-### cache feature added
-- The api now caches the city site response
-- The api now tries 10 times to get city website data
-### [0.0.8] - 2019-07-03
-### bug fix time
-- Bug fix time, using datetime
-### [0.0.9] - 2019-08-21
-### minor improvements
-- minor fixes
-- syntax review
-### [0.1.0] - 2019-10-26
-### Timezone fix + serverless integration
-- Timezone fixed to America/Montreal
-- added serverless integration for AWS deployments
+## [0.0.3] - 2019-06-13
+### deployment automation
+- Production automation added
+## [0.0.2] - 2019-06-13
+### API, tests
+- Converted into flask API
+- Testing suite added
+## [0.0.1] - 2019-06-12
+### First version
+- Fetches all the data from the city website
