@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import re
-import pytz
 import urllib.request
 from datetime import datetime
+import pytz
 from bs4 import BeautifulSoup
 from flask import request
 from flask_api import FlaskAPI, status
