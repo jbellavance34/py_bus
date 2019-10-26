@@ -38,3 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### minor improvements
 - minor fixes
 - syntax review
+### [0.1.0] - 2019-10-26
+### Timezone fix + serverless integration
+- Timezone fixed to America/Montreal
+- added serverless integration for AWS deployments

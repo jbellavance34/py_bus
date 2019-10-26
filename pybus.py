@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import re
+import pytz
 import urllib.request
 from datetime import datetime
-
 from bs4 import BeautifulSoup
 from flask import request
 from flask_api import FlaskAPI, status
@@ -38,8 +38,10 @@ def load_huge_file():
 def parse_bus():
     if request.method == 'GET':
         localtime = datetime.now()
-        date_time_hours = localtime.strftime("%H")
-        date_time_minutes = localtime.strftime("%M")
+        timezone = pytz.timezone("America/Montreal")
+        localtime_aware = timezone.localize(localtime)
+        date_time_hours = localtime_aware.strftime("%H")
+        date_time_minutes = localtime_aware.strftime("%M")
         if request.args.get("max"):
             direction_max = request.args.get("max", "")
         else:
@@ -111,8 +113,7 @@ def parse_bus():
             if destination[int_dict].lower() in direction or direction == "all":
                 for speed, start, end in zip(speed_to, start_lst, end_lst):
                     loop_hours, loop_minutes = start.split(':')
-                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes))\
-                            or direction == 'all':
+                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
                         if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) - 1):
                             complete_return_value.append("Autobus destination " + dest + " : "
                                                          + listofspeeds(speed.text) + " Depart:"
