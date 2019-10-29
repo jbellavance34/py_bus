@@ -1,7 +1,0 @@
-beautifulsoup4
-flask
-flask_api
-pylint
-pytz
-requests
-urllib3

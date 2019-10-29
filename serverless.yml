@@ -16,7 +16,7 @@ custom:
     pythonBin: /home/brap/Python-3.6.9/python
 provider:
   name: aws
-  runtime: python3.6
+  runtime: python3.7
   stage: dev
   region: us-east-1
 
