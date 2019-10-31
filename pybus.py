@@ -3,6 +3,7 @@ import re
 import urllib.request
 from datetime import datetime
 
+from pytz import timezone
 import pytz
 from bs4 import BeautifulSoup
 from flask import request
@@ -38,11 +39,11 @@ def load_huge_file():
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
-        localtime = datetime.now()
-        timezone = pytz.timezone("America/Montreal")
-        localtime_aware = timezone.localize(localtime)
-        date_time_hours = localtime_aware.strftime("%H")
-        date_time_minutes = localtime_aware.strftime("%M")
+        localtime = datetime.now(pytz.utc)
+        montreal_tz = timezone('America/Montreal')
+        date = localtime.astimezone(montreal_tz)
+        date_time_hours = date.strftime("%H")
+        date_time_minutes = date.strftime("%M")
         if request.args.get("max"):
             direction_max = request.args.get("max", "")
         else:
@@ -111,7 +112,9 @@ def parse_bus():
                 for speed, start, end in zip(speed_to, start_lst, end_lst):
                     speed = str(speed)
                     loop_hours, loop_minutes = start.split(':')
-                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
+                    combined_loop_minutes = int(loop_hours)*60 + int(loop_minutes)
+                    combined_date_minutes = int(date_time_hours)*60 + int(date_time_minutes)
+                    if combined_loop_minutes >= combined_date_minutes:
                         if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) - 1):
                             complete_return_value.append("Autobus destination " + dest + " : "
                                                          + list_of_speeds(speed) + " Depart:"

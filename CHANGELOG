@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Unicode character now supported
 - FIXED: Wrong speed bus bug caused by this symbol -> ☀
 - changed the serverless python version from 3.6 to 3.7
+- Other fix to timezone because AWS lambda it UTC
+- fixed serverless deployment dashboard
 ### [0.1.0] - 2019-10-26
 ### Timezone fix + serverless integration
 - Timezone fixed to America/Montreal
