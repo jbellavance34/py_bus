@@ -4,12 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### [0.1.1] - 2019-10-29
-### Unicode character now supported
+### [0.1.1] - 2019-10-29 - 2019-11-03
+### Unicode character now supported + DynamoDB integration
 - FIXED: Wrong speed bus bug caused by this symbol -> ☀
 - changed the serverless python version from 3.6 to 3.7
 - Other fix to timezone because AWS lambda it UTC
 - fixed serverless deployment dashboard
+- get content from dynamoDB
+- update the dynamoDB if empty
+- added dynamoDB table in the serverless configuration
+- increased the lambda cold start performance significantly
 ### [0.1.0] - 2019-10-26
 ### Timezone fix + serverless integration
 - Timezone fixed to America/Montreal

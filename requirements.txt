@@ -5,3 +5,5 @@ pylint
 flask
 flask_api
 pytz
+boto3
+botocore
