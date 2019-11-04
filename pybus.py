@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import re
-import json
 import urllib.request
 from datetime import datetime
 import os
