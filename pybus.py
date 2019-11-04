@@ -13,6 +13,10 @@ from flask_api import FlaskAPI, status
 
 app = FlaskAPI(__name__)
 
+###
+# TODO
+# fix AWS credentials for the git server
+###
 USERS_TABLE = os.environ['USERS_TABLE']
 dynamodb = boto3.resource('dynamodb', 'us-east-1')
 table = dynamodb.Table(USERS_TABLE)
@@ -43,7 +47,6 @@ def parse_bus():
         # Updating the dynamoDB only if empty
         ###
         if len(data) <= 4:
-
             ###
             # Trying to get data from town website
             ###
@@ -116,6 +119,11 @@ def parse_bus():
                             bus_id = bus_id + 1
                         except ClientError as e:
                             print(e.response['Error']['Message'])
+                    ###
+                    # TODO
+                    # fix Montreal bus runs
+                    # seems to load only a few
+                    ###
                     ###
                     # Adding Montreal bus runs information
                     ###
