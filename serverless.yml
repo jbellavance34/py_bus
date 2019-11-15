@@ -22,15 +22,11 @@ resources:
 
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
           - AttributeName: data
             AttributeType: S
         KeySchema:
           - AttributeName: data
             KeyType: HASH
-          - AttributeName: id
-            KeyType: RANGE
         TableName: ${self:custom.tableName}
         ProvisionedThroughput:
           ReadCapacityUnits: '1'
