@@ -32,3 +32,5 @@ python pybus_test.py -v
 
 * http://python.org/
 * https://www.flaskapi.org/
+* https://serverless.com/
+* https://aws.amazon.com/

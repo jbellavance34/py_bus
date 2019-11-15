@@ -2,6 +2,10 @@
 import re
 import urllib.request
 from datetime import datetime
+import os
+import boto3
+from botocore.exceptions import ClientError
+from pytz import timezone
 import pytz
 from bs4 import BeautifulSoup
 from flask import request
@@ -9,55 +13,44 @@ from flask_api import FlaskAPI, status
 
 app = FlaskAPI(__name__)
 
+# dynamodb table information
+USERS_TABLE = os.environ['USERS_TABLE']
+dynamodb = boto3.resource('dynamodb', 'us-east-1')
+table = dynamodb.Table(USERS_TABLE)
 
 @app.before_first_request
-def load_huge_file():
-    for tries in range(1, 11):
-        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/'
+###
+# try to get information from dynamodb
+###
+def get_or_update_dynamodb_data():
+    ###
+    # TODO
+    # fix AWS credentials for the git server
+    ###
+    try:
+        response = table.scan()
+        global dynamodb_data
+        dynamodb_data = response['Items']
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+        print("Can't fetch data from dynamodb")
+    if len(dynamodb_data) <= 4:
+        ###
+        # Updating the dynamoDB only if empty
+        ###
+        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/' +
                'transport-en-commun/Documents/horaires/96.html')
-        try:
-            response = urllib.request.urlopen(url, timeout=30)
-            html_doc_load = response.read()
-            global html_doc
-            html_doc = html_doc_load
-        except Exception as E:
-            print("Try " + str(tries) + "/10 failed for " + url + " exception is : " + str(E))
-            continue
-        break
-    else:
-        print("Can't fetch website data, exiting program")
-        ######
-        # todo, add routine when page doesn't get fetch.
-        # Idea: Copy variable to file, and load file instead of
-        #       a live version.
-        #####
-        #####
-
-
-@app.route("/", methods=['GET'])
-def parse_bus():
-    if request.method == 'GET':
-        localtime = datetime.now()
-        timezone = pytz.timezone("America/Montreal")
-        localtime_aware = timezone.localize(localtime)
-        date_time_hours = localtime_aware.strftime("%H")
-        date_time_minutes = localtime_aware.strftime("%M")
-        if request.args.get("max"):
-            direction_max = request.args.get("max", "")
-        else:
-            direction_max = 10
-        if request.args.get("dest"):
-            direction = request.args.get("dest", "")
-        else:
-            direction = 'all'
-        destination = ['sjsr', 'mtrl', 'all']
-        if direction.lower() not in destination:
-            return_message = "Variable dest=" + direction.lower() + " invalid. Must be dest=" + destination[0].lower() \
-                             + " or dest=" + destination[1].lower()
-            return return_message, status.HTTP_400_BAD_REQUEST
-
+        for tries in range(1, 11):
+            try:
+                response_web = urllib.request.urlopen(url, timeout=30)
+                html_doc = response_web.read()
+            except Exception as E:
+                print("Try " + str(tries) + "/10 failed for " + url + " exception is : " + str(E))
+                continue
+        ###
+        # Parsing the collected data
+        ###
         soup = BeautifulSoup(html_doc, 'html.parser')
-
         dir_list = soup.find_all('div', attrs={"id": "div-horaires"})
         dir_to_mtrl_table = dir_list[0].find('table')
         dir_from_mtrl_table = dir_list[3].find('table')
@@ -76,54 +69,143 @@ def parse_bus():
         end_to_sjsr_lst = []
 
         def populate_list_direction(city_start, list_start, city_end, list_end):
-            for item in city_start:
-                item = str(item)
-                if item != '\n':
-                    list_start.append(re.sub("<.*?>", "", item))
-            for item in city_end:
-                item = str(item)
-                if item != '\n':
-                    list_end.append(re.sub("<.*?>", "", item))
+            for i in city_start:
+                i = str(i)
+                if i != '\n':
+                    list_start.append(re.sub("<.*?>", "", i))
+            for i in city_end:
+                i = str(i)
+                if i != '\n':
+                    list_end.append(re.sub("<.*?>", "", i))
+
         populate_list_direction(start_to_mtrl, start_to_mtrl_lst, end_to_mtrl, end_to_mtrl_lst)
         populate_list_direction(start_to_sjsr, start_to_sjsr_lst, end_to_sjsr, end_to_sjsr_lst)
-        ######
-        # todo, prendre en charge caractere unicode pour les jours ferier
-        # https://www.fileformat.info/info/unicode/char/2600/index.htm
-        #####
-        complete_return_value = []
+        ###
+        # Adding Saint-Jean-Sur-Le-Richelieu bus runs information
+        ###
+        for start, end, speed in zip(start_to_sjsr_lst, end_to_sjsr_lst, speed_to_sjsr):
+            try:
+                speed = str(speed)
+                destination = 'sjsr'
+                concat_response = (destination + ';'
+                                   + start + ';'
+                                   + end + ';'
+                                   + speed)
+                insert_data = table.put_item(
+                    TableName=USERS_TABLE,
+                    Item={
+                        'data': str(concat_response)
+                    }
+                )
+            except ClientError as e:
+                print(e.response['Error']['Message'])
+        ###
+        # Adding Montreal bus runs information
+        ###
+        for start, end, speed in zip(start_to_mtrl_lst, end_to_mtrl_lst, speed_to_mtrl):
+            try:
+                speed = str(speed)
+                destination = 'mtrl'
+                concat_response = (destination + ';'
+                                   + start + ';'
+                                   + end + ';'
+                                   + speed)
+                insert_data = table.put_item(
+                    TableName=USERS_TABLE,
+                    Item={
+                        'data': str(concat_response)
+                    }
+                )
+            except ClientError as e:
+                print(e.response['Error']['Message'])
 
-        def listofspeeds(argument):
+@app.route("/", methods=['GET'])
+def parse_bus():
+    if request.method == 'GET':
+        ###
+        # Defining Montreal timezone to match data source timezone
+        ###
+        localtime = datetime.now(pytz.utc)
+        montreal_tz = timezone('America/Montreal')
+        date = localtime.astimezone(montreal_tz)
+        date_time_hours = date.strftime("%H")
+        date_time_minutes = date.strftime("%M")
+        ###
+        # Parsing given parameters
+        ###
+        if request.args.get("max"):
+            direction_max = request.args.get("max", "")
+            direction_max = int(direction_max)
+        else:
+            direction_max = 5
+        if request.args.get("dest"):
+            direction = request.args.get("dest", "")
+        else:
+            direction = 'all'
+        destination = ['sjsr', 'mtrl', 'all']
+        if direction.lower() not in destination:
+            return_message = "Variable dest=" + direction.lower() + " invalid. Must be dest=" + destination[
+                0].lower() \
+                             + " or dest=" + destination[1].lower()
+            return return_message, status.HTTP_400_BAD_REQUEST
+
+        ###
+        # Filtering output value to give
+        ##
+        def list_of_speeds(argument):
             switcher = {
-                "S": "Super Express  ",
-                "S ☀": "Super Express ☀",
-                "E": "Express        ",
-                "E ☀": "Express ☀      ",
-                "L": "Locale         ",
-                "L ☀": "Locale ☀      ",
-                "A": "Autoroute 30   ",
-                "A ☀": "Autoroute 30 ☀ ",
+                '<div align="center">S</div>': "Super Express  ",
+                '<div align="center">S ☀</div>': "Super Express ☀",
+                '<div align="center">E</div>': "Express        ",
+                '<div align="center">E ☀</div>': "Express ☀     ",
+                '<div align="center">L</div>': "Locale         ",
+                '<div align="center">L ☀</div>': "Locale ☀      ",
+                '<div align="center">A</div>': "Autoroute 30   ",
+                '<div align="center">A ☀</div>': "Autoroute 30 ☀ ",
             }
             return switcher.get(argument, "Wrong speed    ")
 
-        def populate_complete(speed_to, start_lst, end_lst, dest, max_bus):
-            if dest.lower() == 'mtrl':
-                int_dict = 1
-            if dest.lower() == 'sjsr':
-                int_dict = 0
-            if destination[int_dict].lower() in direction or direction == "all":
-                for speed, start, end in zip(speed_to, start_lst, end_lst):
-                    loop_hours, loop_minutes = start.split(':')
-                    if (int(loop_hours)*60 + int(loop_minutes)) >= (int(date_time_hours)*60 + int(date_time_minutes)):
-                        if (sum(dest in s for s in complete_return_value)) <= (int(max_bus) - 1):
-                            complete_return_value.append("Autobus destination " + dest + " : "
-                                                         + listofspeeds(speed.text) + " Depart:"
-                                                         + start + " Arriver:" + end)
+        complete_return_value_mtrl = []
+        complete_return_value_sjsr = []
+        complete_return_value = []
+        def populate_complete(bus_data):
+            for entry in bus_data:
+                # Entry example
+                # sjsr;17:06;17:46;<div align="center">S</div>
+                dest, start, end, speed = entry['data'].split(';')
+                loop_hours, loop_minutes = start.split(':')
+                combined_loop_minutes = int(loop_hours)*60 + int(loop_minutes)
+                combined_date_minutes = int(date_time_hours)*60 + int(date_time_minutes)
+                if combined_loop_minutes >= combined_date_minutes:
+                    value = ("Autobus destination " + dest + " : "
+                             + list_of_speeds(speed) + " Depart:"
+                             + start + " Arriver:" + end)
+                    if dest == 'sjsr':
+                        complete_return_value_sjsr.append(value)
+                    elif dest == 'mtrl':
+                        complete_return_value_mtrl.append(value)
 
-        populate_complete(speed_to_mtrl, start_to_mtrl_lst, end_to_mtrl_lst, 'MTRL', direction_max)
-        populate_complete(speed_to_sjsr, start_to_sjsr_lst, end_to_sjsr_lst, 'SJSR', direction_max)
+        populate_complete(dynamodb_data)
+        ###
+        # Sorting bus rides based on the start hour
+        ###
+        def custom_sort(t):
+            dest, speed, hour_start, minutes_start, hour_end, minutes_end = t.split(':')
+            return hour_start
+        complete_return_value_sjsr = sorted(complete_return_value_sjsr, key=custom_sort)
+        complete_return_value_mtrl = sorted(complete_return_value_mtrl, key=custom_sort)
+        ###
+        # Adding only the bus rides up to direction_max
+        ###
+        if direction == 'sjsr':
+            complete_return_value = complete_return_value_sjsr[:direction_max]
+        elif direction == 'mtrl':
+            complete_return_value = complete_return_value_mtrl[:direction_max]
+        else:
+            complete_return_value.extend(complete_return_value_sjsr[:direction_max])
+            complete_return_value.extend(complete_return_value_mtrl[:direction_max])
 
         return complete_return_value, status.HTTP_200_OK
-
 
 if __name__ == "__main__":
     app.run()
