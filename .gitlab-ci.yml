@@ -14,6 +14,7 @@ test:
   - pip install --no-cache-dir -r requirements.txt
   - pylint --rcfile=.pylintrc pybus.py pybus_test.py
   - export USERS_TABLE=users-table-prod
+  # - python pybus_test.py
   except:
   - master
 ###
