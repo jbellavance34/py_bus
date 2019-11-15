@@ -38,7 +38,7 @@ def get_or_update_dynamodb_data():
         ###
         # Updating the dynamoDB only if empty
         ###
-        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/' + 
+        url = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/' +
                'transport-en-commun/Documents/horaires/96.html')
         for tries in range(1, 11):
             try:
@@ -209,5 +209,3 @@ def parse_bus():
 
 if __name__ == "__main__":
     app.run()
-
- 

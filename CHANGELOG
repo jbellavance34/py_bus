@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - update the dynamoDB if empty
 - added dynamoDB table in the serverless configuration
 - increased the lambda cold start performance significantly
+- modified the test pipeline to test with dynamodb prod table
 ### [0.1.0] - 2019-10-26
 ### Timezone fix + serverless integration
 - Timezone fixed to America/Montreal

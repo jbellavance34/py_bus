@@ -9,10 +9,14 @@ test:
   script:
   - pip install --no-cache-dir -r requirements.txt
   - pylint --rcfile=.pylintrc pybus.py pybus_test.py
+  - export USERS_TABLE=users-table-prod
   - python pybus_test.py
   except:
   - master
-
+###
+# TODO, remove SCP to prod
+# insted change the apache reverse proxy
+###
 production:
   stage: prod
   script:
