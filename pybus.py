@@ -18,6 +18,7 @@ USERS_TABLE = os.environ['USERS_TABLE']
 dynamodb = boto3.resource('dynamodb', 'us-east-1')
 table = dynamodb.Table(USERS_TABLE)
 
+
 @app.before_first_request
 ###
 # try to get information from dynamodb
@@ -119,6 +120,7 @@ def get_or_update_dynamodb_data():
             except ClientError as e:
                 print(e.response['Error']['Message'])
 
+
 @app.route("/", methods=['GET'])
 def parse_bus():
     if request.method == 'GET':
@@ -168,6 +170,7 @@ def parse_bus():
         complete_return_value_mtrl = []
         complete_return_value_sjsr = []
         complete_return_value = []
+
         def populate_complete(bus_data):
             for entry in bus_data:
                 # Entry example
@@ -189,6 +192,7 @@ def parse_bus():
         ###
         # Sorting bus rides based on the start hour
         ###
+
         def custom_sort(t):
             dest, speed, hour_start, minutes_start, hour_end, minutes_end = t.split(':')
             return hour_start
@@ -206,6 +210,7 @@ def parse_bus():
             complete_return_value.extend(complete_return_value_mtrl[:direction_max])
 
         return complete_return_value, status.HTTP_200_OK
+
 
 if __name__ == "__main__":
     app.run()
