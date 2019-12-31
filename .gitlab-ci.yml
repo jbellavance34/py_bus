@@ -24,6 +24,7 @@ production:
   image: serverlesspolska/serverless-framework
   stage: prod
   script:
+  - apt-get install -y -qq serverless-python-requirements
   - echo "Deploying prod"
   - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
