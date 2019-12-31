@@ -1,3 +1,4 @@
+image: python3.6
 stages:
   - test
   - prod
