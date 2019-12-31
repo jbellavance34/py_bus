@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### custom dns api.mayoche.info
 - modified serverless to add custom dns
 - modified gitignore file to remove node modules
+- remove ignored files
 ### [0.1.1] - 2019-10-29 - 2019-11-15
 ### Unicode character now supported + DynamoDB integration
 - FIXED: Wrong speed bus bug caused by this symbol -> ☀
