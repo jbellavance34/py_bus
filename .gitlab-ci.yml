@@ -1,4 +1,3 @@
-image: python
 stages:
   - test
   - prod
@@ -10,12 +9,11 @@ before_script:
 # needed to run : python pybus_test.py
 ###
 test:
+  image: python
   stage: test
   script:
   - pip install --no-cache-dir -r requirements.txt
   - pylint --rcfile=.pylintrc pybus.py pybus_test.py
-  - export USERS_TABLE=users-table-prod
-  # - python pybus_test.py
   except:
   - master
 ###
@@ -23,10 +21,13 @@ test:
 # insted change the apache reverse proxy
 ###
 production:
+  image: serverlesspolska/serverless-framework
   stage: prod
   script:
-  - echo "Deploying on prod"
-  - export SSHPASS=$PRODUCTION_PASSWORD
-  - script -qc"sshpass -e scp -oStrictHostKeyChecking=no pybus.py $PRODUCTION_USERNAME@freebsd:/usr/local/www/apache24/api/pybus.py"
+  - echo "Deploying prod"
+  - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+  # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are now available for serverless to use
+  - serverless deploy
   only:
   - master
