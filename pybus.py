@@ -139,7 +139,7 @@ def parse_bus():
             direction_max = request.args.get("max", "")
             direction_max = int(direction_max)
         else:
-            direction_max = 5
+            direction_max = 10
         if request.args.get("dest"):
             direction = request.args.get("dest", "")
         else:
@@ -195,7 +195,7 @@ def parse_bus():
 
         def custom_sort(t):
             dest, speed, hour_start, minutes_start, hour_end, minutes_end = t.split(':')
-            return hour_start
+            return hour_start, minutes_start
         complete_return_value_sjsr = sorted(complete_return_value_sjsr, key=custom_sort)
         complete_return_value_mtrl = sorted(complete_return_value_mtrl, key=custom_sort)
         ###
