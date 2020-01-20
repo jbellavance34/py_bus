@@ -1,7 +1,7 @@
 *.pyc
 *.pyo
 *.idea/
-*.serverless/*
-node_modules/*
+.serverless
+node_modules
 package-lock.json
 package.json

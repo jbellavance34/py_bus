@@ -40,7 +40,7 @@ resources:
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.8
   stage: prod
   region: us-east-1
   deploymentBucket:
