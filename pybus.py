@@ -142,6 +142,7 @@ def refresh_data():
     #DYNAMODB_DATA = get_data_from_db()
     if len(DYNAMODB_DATA) <= 4:
         update_data_to_db()
+    DYNAMODB_DATA = get_data_from_db()
 
 def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
     # Defining Montreal timezone to match data source timezone
@@ -150,7 +151,9 @@ def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
     date = localtime.astimezone(montreal_tz)
     date_time_hours = date.strftime("%H")
     date_time_minutes = date.strftime("%M")
- 
+
+    app.logger.info('TEST')
+    app.logger.info(data)
     rendered_data = []
     # Entry example
     # sjsr;17:06;17:46;<div align="center">S</div>
@@ -164,13 +167,14 @@ def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
         if combined_loop_minutes >= combined_date_minutes:
             speed = list_of_speeds(speed)
             value = f"Autobus destination {dest}: {speed} Depart:{start} Arriver:{end}"
+            app.logger.info(f"Autobus destination {dest}: {speed} Depart:{start} Arriver:{end}")
             if dest == 'sjsr' and sjsr is True and found_sjsr < direction_max:
                 rendered_data.append(value)
                 found_sjsr = found_sjsr + 1
             elif dest == 'mtrl' and mtrl is True and found_mtrl < direction_max:
                 rendered_data.append(value)
                 found_mtrl = found_mtrl +1
-
+    app.logger.info(rendered_data)
     return sorted(rendered_data, key=custom_sort)
 
 @app.route("/", methods=['GET'])
@@ -183,12 +187,10 @@ def parse_bus():
     if direction not in destination:
         return f"Variable dest={direction} invalid. Must be dest={destination[0]} or dest={destination}", 400
 
-    sjsr = True if (direction == 'sjsr') else False
-    mtrl = True if (direction == 'mtrl') else False
     return render_bus_data(
         DYNAMODB_DATA,
-        sjsr,
-        mtrl,
+        True if (direction == 'sjsr' or direction == 'all') else False, 
+        True if (direction == 'mtrl' or direction == 'all ') else False,
         direction_max
     ), 200
 
