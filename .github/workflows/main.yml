@@ -4,9 +4,9 @@ on:
       - master
 jobs:
   uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: npm
+  with:
+    node-version: '20.x'
+    cache: npm
   steps:
     - name: Installing sls framework packages
       run: npm install -g serverless \
