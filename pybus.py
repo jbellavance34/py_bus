@@ -18,8 +18,7 @@ app = Flask(__name__)
 # dynamodb table information
 
 USERS_TABLE = os.environ.get('USERS_TABLE', 'users-table-prod')
-URL = ('http://www.ville.saint-jean-sur-richelieu.qc.ca/' +
-       'transport-en-commun/Documents/horaires/96.html')
+URL = 'https://sjsr.ca/horaires/96.html'
 DYNAMODB_DATA = []
 dynamodb = boto3.resource('dynamodb', 'us-east-1')
 table = dynamodb.Table(USERS_TABLE)
