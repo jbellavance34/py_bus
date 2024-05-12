@@ -10,15 +10,15 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8 
+        python-version: 3.10
     - name: Install Plugin and Deploy
-      uses: dhollerbach/actions.serverless-with-python-requirements@v2
+      uses: serverless/github-action@v3.2
       with:
-        args: -c "serverless plugin install --name serverless-wsgi && serverless plugin install --name serverless-domain-manager && serverless deploy -s prod -c serverless.yml"
+        args: -c "severless plugin install && serverless plugin install --name serverless-wsgi && serverless plugin install --name serverless-domain-manager && serverless deploy -s prod -c serverless.yml"
         entrypoint: /bin/sh
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
