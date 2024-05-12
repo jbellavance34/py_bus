@@ -3,21 +3,19 @@ on:
     branches:
       - master
 jobs:
-  uses: actions/setup-node@v4
-  with:
-    node-version: '20.x'
-    cache: npm
-  steps:
-    - name: Installing sls framework packages
-      run: npm install -g serverless \
-           npm install serverless-python-requirements \
-           npm install serverless-wsgi \
-           npm install serverless-domain-manager
-    - name: Login in AWS
-      run:  export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-    - name: Deploying prod on -AWS-
-      run: serverless deploy
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Installing sls framework packages
+        run: npm install -g serverless \
+             npm install serverless-python-requirements \
+             npm install serverless-wsgi \
+             npm install serverless-domain-manager
+      - name: Login in AWS
+        run:  export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - name: Deploying prod on -AWS-
+        run: serverless deploy
 # test:
 #   image: python:3.8.1-alpine
 #   stage: test
