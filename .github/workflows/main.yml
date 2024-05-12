@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
       - name: Installing sls framework packages
-        run: npm install -g serverless \
+        run: npm install serverless \
              npm install serverless-python-requirements \
              npm install serverless-wsgi \
              npm install serverless-domain-manager
