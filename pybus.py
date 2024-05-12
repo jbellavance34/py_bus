@@ -9,12 +9,13 @@ from pytz import timezone
 import pytz
 from bs4 import BeautifulSoup
 from flask import request
-from flask_api import FlaskAPI, status
+#from flask_api import FlaskAPI, status
+from flask import Flask
 
-app = FlaskAPI(__name__)
+app = Flask(__name__)
 
 # dynamodb table information
-USERS_TABLE = os.environ['USERS_TABLE']
+USERS_TABLE = os.environ.get('USERS_TABLE', 'users-table-prod')
 dynamodb = boto3.resource('dynamodb', 'us-east-1')
 table = dynamodb.Table(USERS_TABLE)
 
@@ -149,7 +150,7 @@ def parse_bus():
             return_message = "Variable dest=" + direction.lower() + " invalid. Must be dest=" + destination[
                 0].lower() \
                              + " or dest=" + destination[1].lower()
-            return return_message, status.HTTP_400_BAD_REQUEST
+            return return_message, 400
 
         ###
         # Filtering output value to give
@@ -209,7 +210,7 @@ def parse_bus():
             complete_return_value.extend(complete_return_value_sjsr[:direction_max])
             complete_return_value.extend(complete_return_value_mtrl[:direction_max])
 
-        return complete_return_value, status.HTTP_200_OK
+        return complete_return_value, 200
 
 
 if __name__ == "__main__":
