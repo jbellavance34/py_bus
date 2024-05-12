@@ -6,20 +6,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-      - name: Installing sls framework packages
-        run: npm install serverless \
-             npm install serverless-python-requirements \
-             npm install serverless-wsgi \
-             npm install serverless-domain-manager
-      - name: Login in AWS
-        run:  export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-              export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-      - name: Deploying prod on -AWS-
-        run: serverless deploy
+    - name: serverless deploy
+      uses: serverless/github-action@v3.2
+      with:
+        args: deploy
+      env:
+        SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
 # test:
 #   image: python:3.8.1-alpine
 #   stage: test
