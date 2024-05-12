@@ -7,14 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.8 
     - name: Install Plugin and Deploy
-      uses: serverless/github-action@v3.2
+      uses: dhollerbach/actions.serverless-with-python-requirements@v2
       with:
-        args: -c "serverless plugin install --name serverless-python-requirements && serverless plugin install --name serverless-wsgi && serverless plugin install --name serverless-domain-manager && serverless deploy -s prod -c serverless.yml"
+        args: -c "serverless plugin install --name serverless-wsgi && serverless plugin install --name serverless-domain-manager && serverless deploy -s prod -c serverless.yml"
         entrypoint: /bin/sh
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
