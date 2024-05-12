@@ -1,0 +1,30 @@
+stages:
+  - test
+  - prod
+
+test:
+  image: python:3.8.1-alpine
+  stage: test
+  script:
+  - pip install pylint
+  - pip install --no-cache-dir -r requirements.txt
+  - pylint --rcfile=.pylintrc pybus.py pybus_test.py
+  except:
+  - master
+
+production:
+  image: python:3.8.1-alpine
+  stage: prod
+  script:
+  - echo "Installing sls framework packages"
+  - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main/ nodejs=8.9.3-r1
+  - npm install -g serverless
+  - npm install serverless-python-requirements
+  - npm install serverless-wsgi
+  - npm install serverless-domain-manager
+  - echo "Deploying prod on -AWS-"
+  - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+  - serverless deploy
+  only:
+  - master
