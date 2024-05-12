@@ -162,9 +162,8 @@ def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
         combined_loop_minutes = int(loop_hours)*60 + int(loop_minutes)
         combined_date_minutes = int(date_time_hours)*60 + int(date_time_minutes)
         if combined_loop_minutes >= combined_date_minutes:
-            value = ("Autobus destination " + dest + " : "
-                     + list_of_speeds(speed) + " Depart:"
-                     + start + " Arriver:" + end)
+            speed = list_of_speeds(speed)
+            value = f"Autobus destination {dest}: {speed} Depart:{start} Arriver:{end}"
             if dest == 'sjsr' and sjsr is True and found_sjsr < direction_max:
                 rendered_data.append(value)
                 found_sjsr = found_sjsr + 1
