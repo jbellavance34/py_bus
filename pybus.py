@@ -45,14 +45,18 @@ def list_of_speeds(argument):
 
 def populate_list_direction(city_start, list_start, city_end, list_end):
     # TODO, aucune idée de ce que sa fait
+    app.logger.info(city_start, list_start, city_end, list_end)
     for i in city_start:
         i = str(i)
     if i != '\n':
-        list_start.append(re.sub("<.*?>", "", i))
+        #list_start.append(re.sub("<.*?>", "", i))
+        list_start.append(remove_html_tags(i))
     for i in city_end:
         i = str(i)
         if i != '\n':
-            list_end.append(re.sub("<.*?>", "", i))
+            #list_end.append(re.sub("<.*?>", "", i))
+            list_start.append(remove_html_tags(i))
+    app.logger.info(city_start, list_start, city_end, list_end)
 
 def custom_sort(t):
     """
@@ -96,15 +100,12 @@ def parse_data(data) -> [List, List, List, List]:
     start_to_sjsr = dir_from_mtrl_table.find_all('tr')[1]
     end_to_sjsr = dir_from_mtrl_table.find_all('tr')[-1]
 
-    start_to_mtrl_lst = []
-    end_to_mtrl_lst = []
-    start_to_sjsr_lst = []
-    end_to_sjsr_lst = []
+    start_to_mtrl = [remove_html_tags(i) for i in start_to_mtrl]
+    end_to_mtrl = [remove_html_tags(i) for i in end_to_mtrl]
+    start_to_sjsr = [remove_html_tags(i) for i in start_to_sjsr]
+    end_to_sjsr = [remove_html_tags(i) for i in end_to_sjsr]
 
-    populate_list_direction(start_to_mtrl, start_to_mtrl_lst, end_to_mtrl, end_to_mtrl_lst)
-    populate_list_direction(start_to_sjsr, start_to_sjsr_lst, end_to_sjsr, end_to_sjsr_lst)
- 
-    return start_to_mtrl_lst, end_to_mtrl_lst, start_to_sjsr_lst, end_to_sjsr_lst
+    return start_to_mtrl, end_to_mtrl, start_to_sjsr, end_to_sjsr
 
 def update_data_to_db():
     html_doc = get_data_from_url(URL)
@@ -152,7 +153,8 @@ def update_data_to_db():
 ###
 def refresh_data():
     global DYNAMODB_DATA
-    DYNAMODB_DATA = get_data_from_db()
+    # TODO, uncomment me !
+    #DYNAMODB_DATA = get_data_from_db()
     if len(DYNAMODB_DATA) <= 4:
         update_data_to_db()
 
