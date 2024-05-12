@@ -132,15 +132,14 @@ def update_data_to_db():
             print(e.response['Error']['Message'])
 
 
-@app.before_first_request
-###
-# try to get information from dynamodb
-###
 def refresh_data():
     global DYNAMODB_DATA
     if len(DYNAMODB_DATA) <= 4:
         DYNAMODB_DATA = get_data_from_db()
         update_data_to_db()
+
+with app.app_context():
+    refresh_data()
 
 def render_bus_data(data: List, sjsr: bool, mtrl: bool, direction_max: int):
     # Defining Montreal timezone to match data source timezone
