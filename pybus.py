@@ -11,6 +11,7 @@ from typing import List, Dict, Any
 from bs4 import BeautifulSoup
 from flask import request
 from flask import Flask
+import json
 
 app = Flask(__name__)
 # if needed add logging
@@ -179,12 +180,17 @@ def parse_bus():
     destination = ['sjsr', 'mtrl', 'all']
     if direction not in destination:
         return f"Variable dest={direction} invalid. Must be dest={destination[0]} or dest={destination}", 400
-    return render_bus_data(
-        DYNAMODB_DATA,
-        True if (direction == 'sjsr' or direction == 'all') else False, 
-        True if (direction == 'mtrl' or direction == 'all') else False,
-        direction_max
-    ), 200
+    return app.response_class(
+        response = json.dumps(
+            render_bus_data(
+                DYNAMODB_DATA,
+                True if (direction == 'sjsr' or direction == 'all') else False, 
+                True if (direction == 'mtrl' or direction == 'all') else False,
+                direction_max
+            )
+        ),
+        status = 200
+    )
 
 if __name__ == "__main__":
     app.run(
