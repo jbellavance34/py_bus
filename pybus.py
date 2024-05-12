@@ -138,13 +138,11 @@ def update_data_to_db():
 ###
 def refresh_data():
     global DYNAMODB_DATA
-    # TODO, uncomment me !
-    #DYNAMODB_DATA = get_data_from_db()
     if len(DYNAMODB_DATA) <= 4:
+        DYNAMODB_DATA = get_data_from_db()
         update_data_to_db()
-    DYNAMODB_DATA = get_data_from_db()
 
-def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
+def render_bus_data(data: List, sjsr: bool, mtrl: bool, direction_max: int):
     # Defining Montreal timezone to match data source timezone
     localtime = datetime.now(pytz.utc)
     montreal_tz = timezone('America/Montreal')
@@ -152,8 +150,6 @@ def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
     date_time_hours = date.strftime("%H")
     date_time_minutes = date.strftime("%M")
 
-    app.logger.info('TEST')
-    app.logger.info(data)
     rendered_data = []
     # Entry example
     # sjsr;17:06;17:46;<div align="center">S</div>
@@ -167,14 +163,12 @@ def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
         if combined_loop_minutes >= combined_date_minutes:
             speed = list_of_speeds(speed)
             value = f"Autobus destination {dest}: {speed} Depart:{start} Arriver:{end}"
-            app.logger.info(f"Autobus destination {dest}: {speed} Depart:{start} Arriver:{end}")
-            if dest == 'sjsr' and sjsr is True and found_sjsr < direction_max:
+            if dest == 'sjsr' and sjsr is True and found_sjsr < (direction_max / 2):
                 rendered_data.append(value)
                 found_sjsr = found_sjsr + 1
-            elif dest == 'mtrl' and mtrl is True and found_mtrl < direction_max:
+            if dest == 'mtrl' and mtrl is True and found_mtrl < (direction_max / 2):
                 rendered_data.append(value)
                 found_mtrl = found_mtrl +1
-    app.logger.info(rendered_data)
     return sorted(rendered_data, key=custom_sort)
 
 @app.route("/", methods=['GET'])
@@ -186,11 +180,10 @@ def parse_bus():
     destination = ['sjsr', 'mtrl', 'all']
     if direction not in destination:
         return f"Variable dest={direction} invalid. Must be dest={destination[0]} or dest={destination}", 400
-
     return render_bus_data(
         DYNAMODB_DATA,
         True if (direction == 'sjsr' or direction == 'all') else False, 
-        True if (direction == 'mtrl' or direction == 'all ') else False,
+        True if (direction == 'mtrl' or direction == 'all') else False,
         direction_max
     ), 200
 
