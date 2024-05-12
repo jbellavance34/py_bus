@@ -156,19 +156,42 @@ def refresh_data():
     DYNAMODB_DATA = get_data_from_db()
     if len(DYNAMODB_DATA) <= 4:
         update_data_to_db()
-  
-@app.route("/", methods=['GET'])
-def parse_bus():
-    global DYNAMODB_DATA
-    ###
+
+def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
     # Defining Montreal timezone to match data source timezone
-    ###
     localtime = datetime.now(pytz.utc)
     montreal_tz = timezone('America/Montreal')
     date = localtime.astimezone(montreal_tz)
     date_time_hours = date.strftime("%H")
     date_time_minutes = date.strftime("%M")
-    ###
+ 
+    rendered_data = []
+    # Entry example
+    # sjsr;17:06;17:46;<div align="center">S</div>
+    found_sjsr = 0
+    found_mtrl = 0
+    for entry in data:
+        dest, start, end, speed = entry['data'].split(';')
+        loop_hours, loop_minutes = start.split(':')
+        combined_loop_minutes = int(loop_hours)*60 + int(loop_minutes)
+        combined_date_minutes = int(date_time_hours)*60 + int(date_time_minutes)
+        if combined_loop_minutes >= combined_date_minutes:
+            value = ("Autobus destination " + dest + " : "
+                     + list_of_speeds(speed) + " Depart:"
+                     + start + " Arriver:" + end)
+            if dest == 'sjsr' and sjsr is True and found_sjsr < direction_max:
+                rendered_data.append(value)
+                found_sjsr = found_sjsr + 1
+            elif dest == 'mtrl' and mtrl is True and found_mtrl < direction_max:
+                rendered_data.append(value)
+                found_mtrl = found_mtrl +1
+
+    return sorted(rendered_data, key=custom_sort)
+
+@app.route("/", methods=['GET'])
+def parse_bus():
+    global DYNAMODB_DATA
+   ###
     # Parsing given parameters
     ###
     if request.args.get("max"):
@@ -186,44 +209,15 @@ def parse_bus():
             0].lower() \
                          + " or dest=" + destination[1].lower()
         return return_message, 400
-
-    complete_return_value_mtrl = []
-    complete_return_value_sjsr = []
-    complete_return_value = []
-
-    def populate_complete(bus_data):
-        for entry in bus_data:
-            # Entry example
-            # sjsr;17:06;17:46;<div align="center">S</div>
-            dest, start, end, speed = entry['data'].split(';')
-            loop_hours, loop_minutes = start.split(':')
-            combined_loop_minutes = int(loop_hours)*60 + int(loop_minutes)
-            combined_date_minutes = int(date_time_hours)*60 + int(date_time_minutes)
-            if combined_loop_minutes >= combined_date_minutes:
-                value = ("Autobus destination " + dest + " : "
-                         + list_of_speeds(speed) + " Depart:"
-                         + start + " Arriver:" + end)
-                if dest == 'sjsr':
-                    complete_return_value_sjsr.append(value)
-                elif dest == 'mtrl':
-                    complete_return_value_mtrl.append(value)
-
-    populate_complete(DYNAMODB_DATA)
-    complete_return_value_sjsr = sorted(complete_return_value_sjsr, key=custom_sort)
-    complete_return_value_mtrl = sorted(complete_return_value_mtrl, key=custom_sort)
-    ###
-    # Adding only the bus rides up to direction_max
-    ###
-    if direction == 'sjsr':
-        complete_return_value = complete_return_value_sjsr[:direction_max]
-    elif direction == 'mtrl':
-        complete_return_value = complete_return_value_mtrl[:direction_max]
-    else:
-        complete_return_value.extend(complete_return_value_sjsr[:direction_max])
-        complete_return_value.extend(complete_return_value_mtrl[:direction_max])
-
-    return complete_return_value, 200
-
+    
+    sjsr = True if (direction == 'sjsr') else False
+    mtrl = True if (direction == 'mtrl') else False
+    return render_bus_data(
+        DYNAMODB_DATA,
+        sjsr,
+        mtrl,
+        direction_max
+    ), 200
 
 if __name__ == "__main__":
     app.run(
