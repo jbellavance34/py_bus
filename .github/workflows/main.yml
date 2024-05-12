@@ -1,0 +1,53 @@
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10.14
+    - name: Install Plugin and Deploy
+      uses: serverless/github-action@v3.2
+      with:
+        args: -c "serverless plugin install --name serverless-python-requirements && serverless plugin install --name serverless-wsgi && serverless plugin install --name serverless-domain-manager && serverless deploy -s prod -c serverless.yml"
+        entrypoint: /bin/sh
+      env:
+        SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+# test:
+#   image: python:3.8.1-alpine
+#   stage: test
+#   script:
+#   - pip install pylint
+#   - pip install --no-cache-dir -r requirements.txt
+#   - pylint --rcfile=.pylintrc pybus.py pybus_test.py
+#   except:
+#   - master
+
+# production:
+#   image: python:3.8.1-alpine
+#   stage: prod
+#   script:
+#   - echo "Installing sls framework packages"
+#   - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main/ nodejs=8.9.3-r1
+#   - npm install -g serverless
+#   - npm install serverless-python-requirements
+#   - npm install serverless-wsgi
+#   - npm install serverless-domain-manager
+#   - echo "Deploying prod on -AWS-"
+#   - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+#   - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+#   - serverless deploy
+#   only:
+#   - master
