@@ -43,21 +43,6 @@ def list_of_speeds(argument):
     }
     return switcher.get(argument, "Wrong speed    ")
 
-def populate_list_direction(city_start, list_start, city_end, list_end):
-    # TODO, aucune idée de ce que sa fait
-    app.logger.info(city_start, list_start, city_end, list_end)
-    for i in city_start:
-        i = str(i)
-    if i != '\n':
-        #list_start.append(re.sub("<.*?>", "", i))
-        list_start.append(remove_html_tags(i))
-    for i in city_end:
-        i = str(i)
-        if i != '\n':
-            #list_end.append(re.sub("<.*?>", "", i))
-            list_start.append(remove_html_tags(i))
-    app.logger.info(city_start, list_start, city_end, list_end)
-
 def custom_sort(t):
     """
     Sorting bus rides based on the start hour
@@ -192,25 +177,13 @@ def render_bus_data(data, sjsr: bool, mtrl: bool, direction_max: int):
 @app.route("/", methods=['GET'])
 def parse_bus():
     global DYNAMODB_DATA
-   ###
     # Parsing given parameters
-    ###
-    if request.args.get("max"):
-        direction_max = request.args.get("max", "")
-        direction_max = int(direction_max)
-    else:
-        direction_max = 10
-    if request.args.get("dest"):
-        direction = request.args.get("dest", "")
-    else:
-        direction = 'all'
+    direction_max = int(request.args.get("max", 10))
+    direction = request.args.get("dest", "all").lower()
     destination = ['sjsr', 'mtrl', 'all']
-    if direction.lower() not in destination:
-        return_message = "Variable dest=" + direction.lower() + " invalid. Must be dest=" + destination[
-            0].lower() \
-                         + " or dest=" + destination[1].lower()
-        return return_message, 400
-    
+    if direction not in destination:
+        return f"Variable dest={direction} invalid. Must be dest={destination[0]} or dest={destination}", 400
+
     sjsr = True if (direction == 'sjsr') else False
     mtrl = True if (direction == 'mtrl') else False
     return render_bus_data(
