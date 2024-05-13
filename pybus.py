@@ -36,7 +36,7 @@ def list_of_speeds(argument):
     switcher = {
         'S': "Super Express  ",
         'E': "Express        ",
-        'E ☀<': "Express ☀     ",
+        'E ☀': "Express ☀     ",
         'L': "Locale         ",
         'L ☀': "Locale ☀      ",
         'A': "Autoroute 30   ",
